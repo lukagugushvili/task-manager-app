@@ -1,35 +1,51 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './schema/user.schema';
+import { UserRoles } from 'src/enums/user-role';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => User)
-  create(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+  async createUser(
+    @Args('createUserInput') createUserInput: CreateUserInput,
+  ): Promise<User> {
+    return this.usersService.createUser(createUserInput);
   }
 
   @Query(() => [User])
-  findAll() {
-    return this.usersService.findAll();
+  async findAllUser(): Promise<User[]> {
+    return this.usersService.findAllUser();
   }
 
   @Query(() => User, { nullable: true })
-  findOne(@Args('id') id: number) {
-    return this.usersService.findOne(id);
+  async findUserById(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<User | null> {
+    return this.usersService.findUserById(id);
   }
 
   @Mutation(() => User)
-  update(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
+  async updateUser(
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    const { id } = updateUserInput;
+    return this.usersService.updateUser(id, updateUserInput);
   }
 
-  @Mutation(() => Boolean)
-  remove(@Args('id') id: number) {
-    return this.usersService.remove(id);
+  @Mutation(() => User)
+  async removeUser(@Args('id', { type: () => ID }) id: string): Promise<User> {
+    return this.usersService.removeUser(id);
+  }
+
+  @Mutation(() => User)
+  async changeUserRole(
+    @Args('id', { type: () => ID }) id: string,
+    @Args('newRole', { type: () => UserRoles }) newRole: UserRoles,
+  ) {
+    return this.usersService.changeUserRole(id, newRole);
   }
 }

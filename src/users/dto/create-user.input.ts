@@ -15,7 +15,7 @@ export class CreateUserInput {
   @MinLength(6)
   password: string;
 
-  @Field(() => UserRoles, { defaultValue: UserRoles.USER })
+  @Field(() => UserRoles, { nullable: true, defaultValue: UserRoles.USER })
   @IsEnum(UserRoles)
   @IsOptional()
   role?: UserRoles;
