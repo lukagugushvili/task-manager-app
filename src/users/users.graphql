@@ -21,4 +21,6 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: Int!): User
+  register(registerInput: CreateUserInput!): RegisterResponse!
+  login(loginInput: loginInput!): RegisterResponse!
 }

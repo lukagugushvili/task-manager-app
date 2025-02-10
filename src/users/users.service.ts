@@ -129,4 +129,12 @@ export class UsersService {
 
     return user;
   }
+
+  // Implement logic to validate user credentials
+  async findFieldsForAuth(email: string): Promise<User | null> {
+    return this.userModel
+      .findOne({ email })
+      .select('email password role _id')
+      .exec();
+  }
 }

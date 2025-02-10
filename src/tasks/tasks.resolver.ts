@@ -3,6 +3,8 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Task } from './schema/task.schema';
 import { CreateTaskInput } from './dto/create-task.input';
 import { UpdateTaskInput } from './dto/update-task.input';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Task)
 export class TasksResolver {
@@ -28,6 +30,7 @@ export class TasksResolver {
   }
 
   @Mutation(() => Task)
+  @UseGuards(JwtAuthGuard)
   async updateTask(
     @Args('updateTaskInput') updateTaskInput: UpdateTaskInput,
   ): Promise<Task> {
@@ -36,6 +39,7 @@ export class TasksResolver {
   }
 
   @Mutation(() => Task)
+  @UseGuards(JwtAuthGuard)
   async deleteTask(@Args('id', { type: () => ID }) id: string): Promise<Task> {
     return this.tasksService.deleteTask(id);
   }
