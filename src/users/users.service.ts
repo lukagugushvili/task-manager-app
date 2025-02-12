@@ -90,7 +90,7 @@ export class UsersService {
 
       const updatedUser = await this.userModel.findByIdAndUpdate(
         id,
-        updateUserInput,
+        updateData,
         { new: true },
       );
 

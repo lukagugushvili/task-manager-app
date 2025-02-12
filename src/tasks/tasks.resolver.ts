@@ -6,6 +6,7 @@ import { UpdateTaskInput } from './dto/update-task.input';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
 
+@UseGuards(JwtAuthGuard)
 @Resolver(() => Task)
 export class TasksResolver {
   constructor(private readonly tasksService: TasksService) {}
@@ -30,7 +31,6 @@ export class TasksResolver {
   }
 
   @Mutation(() => Task)
-  @UseGuards(JwtAuthGuard)
   async updateTask(
     @Args('updateTaskInput') updateTaskInput: UpdateTaskInput,
   ): Promise<Task> {
@@ -39,7 +39,6 @@ export class TasksResolver {
   }
 
   @Mutation(() => Task)
-  @UseGuards(JwtAuthGuard)
   async deleteTask(@Args('id', { type: () => ID }) id: string): Promise<Task> {
     return this.tasksService.deleteTask(id);
   }

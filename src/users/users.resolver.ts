@@ -4,6 +4,10 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './schema/user.schema';
 import { UserRoles } from 'src/enums/user-role';
+import { Roles } from 'src/decorators/role.decorator';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -28,6 +32,7 @@ export class UsersResolver {
     return this.usersService.findUserById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => User)
   async updateUser(
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
@@ -36,12 +41,16 @@ export class UsersResolver {
     return this.usersService.updateUser(id, updateUserInput);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => User)
+  @Roles(UserRoles.ADMIN)
   async removeUser(@Args('id', { type: () => ID }) id: string): Promise<User> {
     return this.usersService.removeUser(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Mutation(() => User)
+  @Roles(UserRoles.ADMIN)
   async changeUserRole(
     @Args('id', { type: () => ID }) id: string,
     @Args('newRole', { type: () => UserRoles }) newRole: UserRoles,
