@@ -1,7 +1,8 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { UserRoles } from 'src/enums/user-role';
+import { Task } from 'src/tasks/schema/task.schema';
 
 @Schema({ timestamps: true })
 @ObjectType()
@@ -23,6 +24,10 @@ export class User extends Document {
 
   @Prop({ required: true })
   password: string;
+
+  @Field(() => [Task])
+  @Prop([{ type: Types.ObjectId, ref: 'Task' }])
+  task: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -1,6 +1,7 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { IsEmail, IsEnum, IsOptional, MinLength } from 'class-validator';
 import { UserRoles } from 'src/enums/user-role';
+import { Task } from 'src/tasks/schema/task.schema';
 
 @InputType()
 export class CreateUserInput {
@@ -19,4 +20,8 @@ export class CreateUserInput {
   @IsEnum(UserRoles)
   @IsOptional()
   role?: UserRoles;
+
+  @Field(() => [ID], { nullable: true })
+  @IsOptional()
+  task?: Task[];
 }

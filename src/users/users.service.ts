@@ -7,7 +7,7 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from './schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserRoles } from 'src/enums/user-role';
 
@@ -71,6 +71,7 @@ export class UsersService {
   async updateUser(
     id: string,
     updateUserInput: UpdateUserInput,
+    taskId: string,
   ): Promise<User> {
     try {
       const updateData: Partial<UpdateUserInput> = { ...updateUserInput };
@@ -88,13 +89,21 @@ export class UsersService {
         );
       }
 
+      const user = await this.userModel.findByIdAndUpdate(
+        id,
+        { $pull: { task: taskId } },
+        { new: true },
+      );
+
+      if (!user) throw new NotFoundException('User not found');
+
       const updatedUser = await this.userModel.findByIdAndUpdate(
         id,
         updateData,
         { new: true },
       );
 
-      if (!updatedUser) throw new NotFoundException('Could not find user');
+      if (!updatedUser) throw new NotFoundException('User not found');
 
       return updatedUser;
     } catch (error) {
@@ -136,5 +145,22 @@ export class UsersService {
       .findOne({ email })
       .select('email password role _id')
       .exec();
+  }
+
+  // Add a new Task to the user
+  async addTaskToUser(userId: string, taskId: string): Promise<void> {
+    try {
+      await this.userModel.findByIdAndUpdate(
+        userId,
+        { $push: { task: taskId } },
+        { new: true },
+      );
+    } catch (error) {
+      console.error('Error adding task to user:', error.message);
+      throw new BadRequestException(
+        'Could not add task to user:',
+        error.message,
+      );
+    }
   }
 }

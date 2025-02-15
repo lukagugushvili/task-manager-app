@@ -36,9 +36,10 @@ export class UsersResolver {
   @Mutation(() => User)
   async updateUser(
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
+    @Args('taskId', { type: () => ID }) taskId: string,
   ): Promise<User> {
     const { id } = updateUserInput;
-    return this.usersService.updateUser(id, updateUserInput);
+    return this.usersService.updateUser(id, updateUserInput, taskId);
   }
 
   @UseGuards(JwtAuthGuard)

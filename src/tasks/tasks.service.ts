@@ -5,30 +5,31 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './schema/task.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateTaskInput } from './dto/create-task.input';
 import { UpdateTaskInput } from './dto/update-task.input';
 import { TaskStatus } from 'src/enums/task-status';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<Task>,
+    private readonly userService: UsersService,
   ) {}
 
   // Create a new Task and add it to the list of tasks
   async createTask(createTaskInput: CreateTaskInput): Promise<Task> {
     try {
-      const userId = new Types.ObjectId(createTaskInput.user);
+      const user = await this.userService.findUserById(createTaskInput.user);
 
-      const newTask = new this.taskModel({
-        ...createTaskInput,
-        user: userId,
-      });
+      if (!user) throw new NotFoundException(`User with ID ${user} not found`);
 
-      await newTask.save();
+      const post = await this.taskModel.create(createTaskInput);
 
-      return newTask;
+      await this.userService.addTaskToUser(user.id, post.id);
+
+      return await post.populate('user');
     } catch (error) {
       console.error('Error creating task:', error.message);
       throw new BadRequestException('Could not create task:', error.message);
