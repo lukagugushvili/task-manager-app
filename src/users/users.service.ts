@@ -76,6 +76,12 @@ export class UsersService {
     try {
       const updateData: Partial<UpdateUserInput> = { ...updateUserInput };
 
+      if (updateData.role && updateData.role !== 'admin') {
+        throw new BadRequestException(
+          'You do not have permission to update roles',
+        );
+      }
+
       if (updateUserInput.password) {
         const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
 
@@ -88,14 +94,6 @@ export class UsersService {
           saltRounds,
         );
       }
-
-      const user = await this.userModel.findByIdAndUpdate(
-        id,
-        { $pull: { task: taskId } },
-        { new: true },
-      );
-
-      if (!user) throw new NotFoundException('User not found');
 
       const updatedUser = await this.userModel.findByIdAndUpdate(
         id,
@@ -126,19 +124,6 @@ export class UsersService {
     }
   }
 
-  // Implement logic to change user role
-  async changeUserRole(id: string, newRole: UserRoles) {
-    const user = await this.userModel.findById(id);
-
-    if (!user) throw new NotFoundException('User not found');
-
-    user.role = newRole;
-
-    await user.save();
-
-    return user;
-  }
-
   // Implement logic to validate user credentials
   async findFieldsForAuth(email: string): Promise<User | null> {
     return this.userModel
@@ -150,11 +135,13 @@ export class UsersService {
   // Add a new Task to the user
   async addTaskToUser(userId: string, taskId: string): Promise<void> {
     try {
-      await this.userModel.findByIdAndUpdate(
-        userId,
-        { $push: { task: taskId } },
-        { new: true },
-      );
+      const user = await this.userModel.findById(userId);
+
+      if (!user) throw new NotFoundException('Could not found');
+
+      user.task.push(new Types.ObjectId(taskId));
+
+      await user.save();
     } catch (error) {
       console.error('Error adding task to user:', error.message);
       throw new BadRequestException(

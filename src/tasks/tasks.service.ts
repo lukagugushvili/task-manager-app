@@ -64,10 +64,7 @@ export class TasksService {
     try {
       const updateData: Partial<UpdateTaskInput> = { ...updateTaskInput };
 
-      if (
-        updateTaskInput.status &&
-        updateTaskInput.status !== TaskStatus.COMPLETED
-      ) {
+      if (updateTaskInput.status && updateTaskInput.status !== 'COMPLETED') {
         updateData.status = updateTaskInput.status;
       }
 
