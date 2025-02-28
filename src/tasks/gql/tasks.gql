@@ -1,0 +1,39 @@
+type Task {
+  _id: ID!
+  title: String!
+  description: String
+  status: TaskStatus!
+  user: User!
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+input CreateTaskInput {
+  title: String!
+  description: String
+  status: TaskStatus = PENDING
+  user: ID
+}
+
+input UpdateTaskInput {
+  title: String!
+  description: String
+  status: TaskStatus = PENDING
+  user: ID
+  id: ID!
+}
+
+type Query {
+  findAllTasks: [Task]!
+  findTaskById(id: ID!): Task
+}
+
+type Mutation {
+  createTask(createTaskInput: CreateTaskInput): Task!
+  updateTask(id: ID!, UpdateTaskInput: UpdateTaskInput): Task!
+  deleteTask(id: ID!): Task
+}
